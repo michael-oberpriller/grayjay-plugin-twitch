@@ -748,7 +748,7 @@ function callGQL(gql, use_authenticated = false, parse = true) {
 function checkHLS(url) {
     const resp = http.GET(url, { 'User-Agent': USER_AGENT })
     if (!resp.isOk) {
-        throw new UnavailableException('This content is restricted to subscribers')
+        throw new UnavailableException('This content is restricted to subscribers ' + resp.code)
     }
 }
 
