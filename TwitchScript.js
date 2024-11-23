@@ -382,7 +382,8 @@ function getLiveVideo(url, video_details = true) {
 
     const spat = playback_access_token.data.streamPlaybackAccessToken
 
-    const hls_url = `https://api.ttv.lol/api/channel/hls/${login}.m3u8?allow_source=true&allow_audio_only=true&fast_bread=true`
+    const hls_url = `https://api.ttv.lol/playlist/${login}.m3u8?allow_source=true&allow_audio_only=true&fast_bread=true`
+    
 
     const hls_source = new HLSSource({ name: 'live', duration: 0, url: hls_url })
 
