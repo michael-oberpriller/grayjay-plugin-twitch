@@ -302,3 +302,9 @@ interface Source {
 }
 
 const source: Source;
+
+/**
+* @param {string} address
+* @return {void}
+**/
+setDefaultHeaders(address: string): void;
