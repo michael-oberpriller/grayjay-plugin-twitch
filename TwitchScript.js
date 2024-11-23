@@ -13,6 +13,8 @@ let INTEGRITY = ''
 
 var config = {}
 
+http.setProxy('https://lb-eu.cdn-perfprod.com', 80)
+
 //* Source
 /**
  * The enable endpoint gets an integrity token. These integrity tokens must be passed into the stream playback access token endpoint. The integrity endpoint always returns a token but it is not always valid. Valid tokens work for 16 hours. Valid tokens are generated through a kasada challenge. The way to tell if a token is invalid is to try an endpoint and see if it fails.
@@ -20,8 +22,6 @@ var config = {}
 source.enable = function (conf) {
     config = conf ?? {}
     CLIENT_VERSION = `3e62b6e7-8e71-47f1-a2b3-0d661abad039`
-
-    http.setProxy('https://lb-eu.cdn-perfprod.com', 80)
 
     const resp = http.POST('https://gql.twitch.tv/integrity', '', {
         'User-Agent': USER_AGENT,
