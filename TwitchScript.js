@@ -246,6 +246,8 @@ function getSavedVideo(url) {
 
     const hls_url = `https://usher.ttvnw.net/vod/${id}.m3u8?acmb=e30=&allow_source=true&fast_bread=true&p=&play_session_id=&player_backend=mediaplayer&playlist_include_framerate=true&reassignments_supported=true&sig=${spat.signature}&supported_codecs=avc1&token=${encodeURIComponent(spat.value)}&transcode_mode=vbr_v1&cdm=wv&player_version=1.20.0`
 
+    checkHLS(hls_url)
+    
     const sources = [new HLSSource({ name: 'source', duration: 0, url: hls_url })]
 
     const gql2 = [
@@ -383,7 +385,8 @@ function getLiveVideo(url, video_details = true) {
     const spat = playback_access_token.data.streamPlaybackAccessToken
 
     const hls_url = `https://api.ttv.lol/playlist/${login}.m3u8?allow_source=true&allow_audio_only=true&fast_bread=true`
-    
+
+    checkHLS(hls_url)
 
     const hls_source = new HLSSource({ name: 'live', duration: 0, url: hls_url })
 
