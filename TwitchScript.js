@@ -154,7 +154,7 @@ source.getChannelTemplateByClaimMap = () => {
 
 source.isContentDetailsUrl = function (url) {
     // https://www.twitch.tv/user or https://www.twitch.tv/videos/123456789
-    return /twitch\.tv\/[a-zA-Z0-9-_]+\/?/.test(url) || /twitch\.tv\/videos\/[0-9]+\/?/.test(url)
+    return /twitch\.tv\/[a-zA-Z0-9-_]+\/?/.test(url) || /twitch\.tv\/videos\/[0-9]+\/?/.test(url) || /ttv\.lol\/[a-zA-Z0-9-_]+\/?/.test(url)
 }
 source.getContentDetails = function (url) {
     if (url.includes('/video/') || url.includes('/videos/')) {
