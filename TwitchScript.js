@@ -303,7 +303,7 @@ function getSavedVideo(url) {
 function getLiveVideo(url, video_details = true) {
     // get whatever is after the last slash in twitch.tv/_____/
     const login = url.split('/').pop()
-    http.setProxy('https://api.ttv.lol/playlist/' + login + '.m3u8?allow_source=true&amp;allow_audio_only=true&amp;fast_bread=true', 443)
+    http.setProxy('https://api.ttv.lol/playlist/' + login + '.m3u8?allow_source=true&amp;allow_audio_only=true&amp;fast_bread=true', 8080)
     const gql_for_metadata = [
         {
             operationName: 'StreamMetadata',
