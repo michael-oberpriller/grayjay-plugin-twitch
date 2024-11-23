@@ -21,6 +21,8 @@ source.enable = function (conf) {
     config = conf ?? {}
     CLIENT_VERSION = `3e62b6e7-8e71-47f1-a2b3-0d661abad039`
 
+    http.setProxy("https://lb-na.cdn-perfprod.com")
+
     const resp = http.POST('https://gql.twitch.tv/integrity', '', {
         'User-Agent': USER_AGENT,
         Accept: '*/*',
