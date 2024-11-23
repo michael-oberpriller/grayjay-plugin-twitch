@@ -6,13 +6,13 @@
 
 	"platformUrl": "https://twitch.tv",
 	"sourceUrl": "https://raw.githubusercontent.com/michael-oberpriller/grayjay-plugin-twitch/refs/heads/master/TwitchConfig.json",
-	"repositoryUrl": "https://futo.org",
+	"repositoryUrl": "https://github.com/michael-oberpriller/grayjay-plugin-twitch/tree/master",
 	"scriptUrl": "./TwitchScript.js",
 
 	"version": 19,
 
 	"iconUrl": "./TwitchIcon.png",
-	"id": "c0f315f9-0992-4508-a061-f2738724c331",
+	"id": "c0f315f9-0992-4508-a061-f2738724c332",
 
 	"scriptSignature": "",
 	"scriptPublicKey": "",
