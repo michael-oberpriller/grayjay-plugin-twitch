@@ -20,10 +20,7 @@
 	
 	"allowEval": false,
 	"allowUrls": [
-		"gql.twitch.tv",
-		"twitch.tv",
-		"usher.ttvnw.net",
-		"lb-eu.cdn-perfprod.com"
+		"everywhere"
 	],
 	
 	"authentication": {
