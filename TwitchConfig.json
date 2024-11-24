@@ -40,9 +40,9 @@
 		}
 	},
 
-	"supportedClaimTypes": [14]
+	"supportedClaimTypes": [14],
 
-	settings": [
+	"settings": [
 		{
 			"variable": "proxy",
 			"name": "Proxy Address",
