@@ -23,7 +23,7 @@
 		"gql.twitch.tv",
 		"twitch.tv",
 		"usher.ttvnw.net",
-		"api.ttv.lol"
+		"lb-eu.cdn-perfprod.com"
 	],
 	
 	"authentication": {
