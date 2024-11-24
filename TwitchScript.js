@@ -384,8 +384,9 @@ function getLiveVideo(url, video_details = true) {
 
     const spat = playback_access_token.data.streamPlaybackAccessToken
 
-    const hls_url = `https://lb-eu.cdn-perfprod.com/live/${login}.m3u8?acmb=e30=&allow_source=true&fast_bread=true&p=&play_session_id=&player_backend=mediaplayer&playlist_include_framerate=true&reassignments_supported=true&sig=${spat.signature}&supported_codecs=avc1&token=${encodeURIComponent(spat.value)}&transcode_mode=vbr_v1&cdm=wv&player_version=1.20.0`
-
+    // const hls_url = `https://lb-eu.cdn-perfprod.com/live/${login}.m3u8?acmb=e30=&allow_source=true&fast_bread=true&p=&play_session_id=&player_backend=mediaplayer&playlist_include_framerate=true&reassignments_supported=true&sig=${spat.signature}&supported_codecs=avc1&token=${encodeURIComponent(spat.value)}&transcode_mode=vbr_v1&cdm=wv&player_version=1.20.0`
+    const hls_url = `https://lb-eu.cdn-perfprod.com/live/${login}
+    
     checkHLS(hls_url)
 
     const hls_source = new HLSSource({ name: 'live', duration: 0, url: hls_url })
