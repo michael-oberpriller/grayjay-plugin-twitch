@@ -5,6 +5,15 @@ const GQL_URL = 'https://gql.twitch.tv/gql#origin=twilight'
 const PLATFORM = 'Twitch'
 const PLATFORM_CLAIMTYPE = 14;
 const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36'
+const PROXY_ADDRESSES = [
+	"None",
+	"api.ttv.lol", 
+	"lb-eu.cdn-perfprod.com",
+	"lb-na.cdn-perfprod.com",
+	"lb-sa.cdn-perfprod.com",
+	"eu.luminous.dev",
+	"as.luminous.dev"
+]
 
 //* Global Variables
 let CLIENT_SESSION_ID = ''
@@ -389,7 +398,7 @@ function getLiveVideo(url, video_details = true) {
 
     const spat = playback_access_token.data.streamPlaybackAccessToken
 
-    const hls_url = (_settings["proxy"] != "None") ? `https://${_settings["proxy"]}/live/${login}` :
+    const hls_url = (PROXY_ADDRESSES[_settings["proxy"]] != "None") ? `https://${PROXY_ADDRESSES[_settings["proxy"]]}/live/${login}` :
     	`https://usher.ttvnw.net/api/channel/hls/${login}.m3u8?acmb=e30=&allow_source=true&fast_bread=true&p=&play_session_id=&player_backend=mediaplayer&playlist_include_framerate=true&reassignments_supported=true&sig=${spat.signature}&supported_codecs=avc1&token=${encodeURIComponent(spat.value)}&transcode_mode=vbr_v1&cdm=wv&player_version=1.20.0`
     
     checkHLS(hls_url)
