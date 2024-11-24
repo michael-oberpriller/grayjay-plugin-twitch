@@ -750,9 +750,6 @@ function checkHLS(url) {
     if (!resp.isOk) {
         throw new UnavailableException('This content is restricted to subscribers ' + resp.code + ' ' + url)
     }
-    else {
-        throw new UnavailableException('Good code: ' + resp.code)
-    }
 }
 
 //* Pagers
