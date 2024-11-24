@@ -20,7 +20,15 @@
 	
 	"allowEval": false,
 	"allowUrls": [
-		"everywhere"
+		"gql.twitch.tv",
+		"twitch.tv",
+		"usher.ttvnw.net",
+		"api.ttv.lol", 
+		"lb-eu.cdn-perfprod.com",
+		"lb-na.cdn-perfprod.com",
+		"lb-sa.cdn-perfprod.com",
+		"eu.luminous.dev",
+		"as.luminous.dev"
 	],
 	
 	"authentication": {
@@ -33,4 +41,23 @@
 	},
 
 	"supportedClaimTypes": [14]
+
+	settings": [
+		{
+			"variable": "proxy",
+			"name": "Proxy Address",
+			"description": "The address of the proxy used for streams and videos. This should block server-side ad injections.",
+			"type": "Dropdown",
+			"default": "0",
+			"options": [
+				"None", 
+				"api.ttv.lol", 
+				"lb-eu.cdn-perfprod.com",
+				"lb-na.cdn-perfprod.com",
+				"lb-sa.cdn-perfprod.com",
+				"eu.luminous.dev",
+				"as.luminous.dev"
+			]
+		}
+	]
 }
