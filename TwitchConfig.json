@@ -5,7 +5,7 @@
 	"authorUrl": "https://futo.org",
 
 	"platformUrl": "https://twitch.tv",
-	"sourceUrl": "https://raw.githubusercontent.com/michael-oberpriller/grayjay-plugin-twitch/refs/heads/master/TwitchConfig.json",
+	"sourceUrl": "https://raw.githubusercontent.com/michael-oberpriller/grayjay-plugin-twitch/refs/heads/testing/TwitchConfig.json",
 	"repositoryUrl": "https://github.com/michael-oberpriller/grayjay-plugin-twitch/tree/testing",
 	"scriptUrl": "./TwitchScript.js",
 
