@@ -24,7 +24,8 @@
 		"twitch.tv",
 		"usher.ttvnw.net",
 		"production.assets.clips.twitchcdn.net",
-		"lb-na.cdn-perfprod.com"
+		"lb-na.cdn-perfprod.com",
+		".cdn-perfprod.com"
 	],
 	
 	"authentication": {
