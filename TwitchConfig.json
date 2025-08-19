@@ -1,12 +1,12 @@
 {
-	"name": "Twitch (Beta)",
+	"name": "Twitch (Beta) 2",
 	"description": "One of the biggest livestreaming platforms, owned by Amazon.",
 	"author": "FUTO",
 	"authorUrl": "https://futo.org",
 
 	"platformUrl": "https://twitch.tv",
-	"sourceUrl": "https://plugins.grayjay.app/Twitch/TwitchConfig.json",
-	"repositoryUrl": "https://gitlab.futo.org/videostreaming/plugins/twitch",
+	"sourceUrl": "https://raw.githubusercontent.com/michael-oberpriller/grayjay-plugin-twitch/refs/heads/master/TwitchConfig.json",
+	"repositoryUrl": "https://github.com/michael-oberpriller/grayjay-plugin-twitch/tree/master",
 	"scriptUrl": "./TwitchScript.js",
 
 	"version": 26,
@@ -23,7 +23,8 @@
 		"gql.twitch.tv",
 		"twitch.tv",
 		"usher.ttvnw.net",
-		"production.assets.clips.twitchcdn.net"
+		"production.assets.clips.twitchcdn.net",
+		"firefox.api.cdn-perfprod.com"
 	],
 	
 	"authentication": {
@@ -36,13 +37,22 @@
 	},
 
 	"supportedClaimTypes": [14],
-	"settings": [{
-		"variable": "shouldIncludeChannelClips",
-		"name": "Show channel clips",
-		"description": "",
-		"type": "Boolean",
-		"default": "true"
-	}],
+	"settings": [
+		{
+			"variable": "shouldIncludeChannelClips",
+			"name": "Show channel clips",
+			"description": "",
+			"type": "Boolean",
+			"default": "true"
+		},
+		{
+			"variable": "useProxy",
+			"name": "Proxy",
+			"description": "Use TTV LOL PRO V2 proxy",
+			"type": "Boolean",
+			"default": "false"
+		}
+	],
 	"changelog": {
 		"25": [
 			"Fix: solve playback errors in some clips;"
