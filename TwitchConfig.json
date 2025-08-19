@@ -6,7 +6,7 @@
 
 	"platformUrl": "https://twitch.tv",
 	"sourceUrl": "https://raw.githubusercontent.com/michael-oberpriller/grayjay-plugin-twitch/refs/heads/master/TwitchConfig.json",
-	"repositoryUrl": "https://github.com/michael-oberpriller/grayjay-plugin-twitch/tree/master",
+	"repositoryUrl": "https://github.com/michael-oberpriller/grayjay-plugin-twitch/tree/testing",
 	"scriptUrl": "./TwitchScript.js",
 
 	"version": 26,
