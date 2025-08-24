@@ -29,18 +29,18 @@ const REGEX_URL_CLIP_DETAILS_LIST = [
 
 const PROXY_SERVER_LIST = [
 	"None",
-	"https://lb-eu.cdn-perfprod.com",
-	"https://lb-eu2.cdn-perfprod.com",
-	"https://lb-eu3.cdn-perfprod.com",
-	"https://lb-eu4.cdn-perfprod.com",
-	"https://lb-eu5.cdn-perfprod.com",
-	"https://lb-na.cdn-perfprod.com",
-	"https://lb-as.cdn-perfprod.com",
-	"https://lb-sa.cdn-perfprod.com",
-	"https://eu.luminous.dev",
-	"https://eu2.luminous.dev",
-	"https://eu3.luminous.dev",
-	"https://as.luminous.dev",
+	"lb-eu.cdn-perfprod.com",
+	"lb-eu2.cdn-perfprod.com",
+	"lb-eu3.cdn-perfprod.com",
+	"lb-eu4.cdn-perfprod.com",
+	"lb-eu5.cdn-perfprod.com",
+	"lb-na.cdn-perfprod.com",
+	"lb-as.cdn-perfprod.com",
+	"lb-sa.cdn-perfprod.com",
+	"eu.luminous.dev",
+	"eu2.luminous.dev",
+	"eu3.luminous.dev",
+	"as.luminous.dev",
 ];
 
 //* Global Variables
