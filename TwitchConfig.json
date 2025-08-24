@@ -24,7 +24,6 @@
 		"twitch.tv",
 		"usher.ttvnw.net",
 		"production.assets.clips.twitchcdn.net",
-		"lb-na.cdn-perfprod.com",
 		".cdn-perfprod.com",
 		".luminous.dev"
 	],
@@ -48,11 +47,26 @@
 			"default": "true"
 		},
 		{
-			"variable": "useProxy",
-			"name": "Proxy",
-			"description": "Use TTV LOL PRO V2 proxy",
-			"type": "Boolean",
-			"default": "false"
+			"variable": "Proxy",
+			"name": "Proxy Server",
+			"description": "Use TTV LOL PRO V1 proxy",
+			"type": "Dropdown",
+			"default": "0",
+			"options": [
+				"None",
+				"Perfprod EU 1",
+				"Perfprod EU 2",
+				"Perfprod EU 3",
+				"Perfprod EU 4",
+				"Perfprod EU 5",
+				"Perfprod NA",
+				"Perfprod AS",
+				"Perfprod SA",
+				"Luminous EU 1",
+				"Luminous EU 2",
+				"Luminous EU 3",
+				"Luminous AS"
+			]
 		}
 	],
 	"changelog": {

@@ -27,6 +27,22 @@ const REGEX_URL_CLIP_DETAILS_LIST = [
     /^https?:\/\/(www\.|m\.)?twitch\.tv\/clip\/([a-zA-Z0-9_-]+)(\?.*)?$/
 ];
 
+const PROXY_SERVER_LIST = [
+	"None",
+	"https://lb-eu.cdn-perfprod.com",
+	"https://lb-eu2.cdn-perfprod.com",
+	"https://lb-eu3.cdn-perfprod.com",
+	"https://lb-eu4.cdn-perfprod.com",
+	"https://lb-eu5.cdn-perfprod.com",
+	"https://lb-na.cdn-perfprod.com",
+	"https://lb-as.cdn-perfprod.com",
+	"https://lb-sa.cdn-perfprod.com",
+	"https://eu.luminous.dev",
+	"https://eu2.luminous.dev",
+	"https://eu3.luminous.dev",
+	"https://as.luminous.dev",
+];
+
 //* Global Variables
 let CLIENT_SESSION_ID = ''
 let CLIENT_VERSION = ''
@@ -487,7 +503,7 @@ function getLiveVideo(url, video_details = true) {
 
     const spat = playback_access_token.data.streamPlaybackAccessToken
 
-    const hls_url = _settings.useProxy === true ? `https://lb-sa.luminous.dev/live/${login}` : `https://usher.ttvnw.net/api/channel/hls/${login}.m3u8?acmb=e30=&allow_source=true&fast_bread=true&p=&play_session_id=&player_backend=mediaplayer&playlist_include_framerate=true&reassignments_supported=true&sig=${spat.signature}&supported_codecs=avc1&token=${encodeURIComponent(spat.value)}&transcode_mode=vbr_v1&cdm=wv&player_version=1.20.0`
+    const hls_url = (PROXY_SERVER_LIST[_settings.Proxy] != "None") ? `https://${PROXY_SERVER_LIST[_settings.Proxy]}/live/${login}` : `https://usher.ttvnw.net/api/channel/hls/${login}.m3u8?acmb=e30=&allow_source=true&fast_bread=true&p=&play_session_id=&player_backend=mediaplayer&playlist_include_framerate=true&reassignments_supported=true&sig=${spat.signature}&supported_codecs=avc1&token=${encodeURIComponent(spat.value)}&transcode_mode=vbr_v1&cdm=wv&player_version=1.20.0`
 
     bridge.toast(hls_url)
     
