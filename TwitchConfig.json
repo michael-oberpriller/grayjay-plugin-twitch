@@ -3,21 +3,18 @@
 	"description": "One of the biggest livestreaming platforms, owned by Amazon.",
 	"author": "FUTO",
 	"authorUrl": "https://futo.org",
-
 	"platformUrl": "https://twitch.tv",
 	"sourceUrl": "https://raw.githubusercontent.com/michael-oberpriller/grayjay-plugin-twitch/refs/heads/testing/TwitchConfig.json",
 	"repositoryUrl": "https://github.com/michael-oberpriller/grayjay-plugin-twitch/tree/testing",
 	"scriptUrl": "./TwitchScript.js",
-
-	"version": 26,
-
+	"version": 28,
 	"iconUrl": "./twitch.png",
 	"id": "c0f315f9-0992-4508-a061-f2738724c332",
-
 	"scriptSignature": "",
 	"scriptPublicKey": "",
-	"packages": ["Http"],
-	
+	"packages": [
+		"Http"
+	],
 	"allowEval": false,
 	"allowUrls": [
 		"gql.twitch.tv",
@@ -27,17 +24,21 @@
 		".cdn-perfprod.com",
 		".luminous.dev"
 	],
-	
 	"authentication": {
 		"userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.6422.113 Mobile Safari/537.36",
 		"loginUrl": "https://www.twitch.tv/login",
-		"headersToFind": ["Authorization"],
+		"headersToFind": [
+			"Authorization"
+		],
 		"domainHeadersToFind": {
-			".twitch.tv": ["authorization"]
+			".twitch.tv": [
+				"authorization"
+			]
 		}
 	},
-
-	"supportedClaimTypes": [14],
+	"supportedClaimTypes": [
+		14
+	],
 	"settings": [
 		{
 			"variable": "shouldIncludeChannelClips",
@@ -70,11 +71,19 @@
 		}
 	],
 	"changelog": {
-		"25": [
-			"Fix: solve playback errors in some clips;"
+		"28": [
+			"Improvement: Add 1440p stream support for logged-in users in supported regions;"
+		],
+		"27": [
+			"Fix: Channel social links;",
+			"Improvement: Initial content recommendation implementation;",
+			"Improvement: Switch to CBR bitrate to resolve automatic resolution drops"
 		],
 		"26": [
 			"Fix: home error;"
+		],
+		"25": [
+			"Fix: solve playback errors in some clips;"
 		]
 	}
 }
