@@ -27,7 +27,6 @@ const REGEX_URL_CLIP_DETAILS_LIST = [
     /^https?:\/\/(www\.|m\.)?twitch\.tv\/clip\/([a-zA-Z0-9_-]+)(\?.*)?$/
 ];
 
-<<<<<<< HEAD
 const PROXY_SERVER_LIST = [
 	"None",
 	"lb-eu.cdn-perfprod.com",
@@ -43,10 +42,8 @@ const PROXY_SERVER_LIST = [
 	"eu3.luminous.dev",
 	"as.luminous.dev",
 ];
-=======
 const MAX_RECOMMENDATION_TAGS = 3;
 const RECOMMENDATION_LIMIT = 20;
->>>>>>> origin/master
 
 //* Global Variables
 let CLIENT_SESSION_ID = ''
@@ -438,13 +435,8 @@ function getSavedVideo(url) {
 
     const spat = hls_json.data.videoPlaybackAccessToken
 
-<<<<<<< HEAD
-    const hls_url = `https://usher.ttvnw.net/vod/${id}.m3u8?acmb=e30=&allow_source=true&fast_bread=true&p=&play_session_id=&player_backend=mediaplayer&playlist_include_framerate=true&reassignments_supported=true&sig=${spat.signature}&supported_codecs=avc1&token=${encodeURIComponent(spat.value)}&transcode_mode=vbr_v1&cdm=wv&player_version=1.20.0`
-	
-=======
     const hls_url = `https://usher.ttvnw.net/vod/${id}.m3u8?acmb=e30=&allow_source=true&fast_bread=true&p=&play_session_id=&player_backend=mediaplayer&playlist_include_framerate=true&reassignments_supported=true&sig=${spat.signature}&supported_codecs=h265,h264&token=${encodeURIComponent(spat.value)}&transcode_mode=cbr_v1&cdm=wv&player_version=1.20.0`
 
->>>>>>> origin/master
     checkHLS(hls_url)
 
     const sources = [new HLSSource({ name: 'source', duration: 0, url: hls_url })]
