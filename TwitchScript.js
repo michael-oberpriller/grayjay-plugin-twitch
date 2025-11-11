@@ -98,13 +98,6 @@ source.getSearchCapabilities = () => {
 source.search = function (query, type, order, filters) {
     return getSearchPagerAll({ q: query })
 }
-source.getSearchChannelContentsCapabilities = function () {
-    return { types: [Type.Feed.Mixed], sorts: [Type.Order.Chronological], filters: [] }
-}
-// not in twitch
-source.searchChannelContents = function (channelUrl, query, type, order, filters) {
-    return []
-}
 source.searchChannels = function (query) {
     return getSearchPagerChannels({ q: query, page_size: 20, results_returned: 0, cursor: null })
 }
