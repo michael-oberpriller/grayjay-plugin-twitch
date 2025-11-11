@@ -1720,12 +1720,6 @@ function getRecommendationsPager(params) {
     if (gameId && gameName) {
         // Use directory query for specific game
         gql = {
-            extensions: {
-                persistedQuery: {
-                    sha256Hash: 'df4bb6cc45055237bfaf3ead608bbafb79815c7100b6ee126719fac3762ddf8b',
-                    version: 1,
-                },
-            },
             operationName: 'DirectoryPage_Game',
             variables: {
                 name: gameName,
@@ -1738,22 +1732,40 @@ function getRecommendationsPager(params) {
                     requestID: 'RECOMMENDATIONS',
                     freeformTags: tags.length > 0 ? tags.slice(0, MAX_RECOMMENDATION_TAGS) : null,
                 },
-                sortTypeIsRecency: false,
                 limit: RECOMMENDATION_LIMIT,
             },
+            query: `query DirectoryPage_Game($name: String!, $options: GameStreamOptions, $limit: Int) {
+                game(name: $name) {
+                    id
+                    displayName
+                    streams(first: $limit, options: $options) {
+                        edges {
+                            cursor
+                            node {
+                                id
+                                title
+                                previewImageURL(width: 320, height: 180)
+                                viewersCount
+                                broadcaster {
+                                    id
+                                    login
+                                    displayName
+                                    profileImageURL(width: 50)
+                                }
+                            }
+                        }
+                        pageInfo {
+                            hasNextPage
+                        }
+                    }
+                }
+            }`,
         };
     } else {
-        // Use general popular streams query
+        // Use general popular streams query (same as getHomePagerPopular)
         gql = {
-            extensions: {
-                persistedQuery: {
-                    sha256Hash: 'b32fa28ffd43e370b42de7d9e6e3b8a7ca310035fdbb83932150443d6b693e4d',
-                    version: 1,
-                },
-            },
             operationName: 'BrowsePage_Popular',
             variables: {
-                imageWidth: 50,
                 limit: RECOMMENDATION_LIMIT,
                 options: {
                     broadcasterLanguages: ['EN'],
@@ -1767,8 +1779,29 @@ function getRecommendationsPager(params) {
                     tags: [],
                 },
                 platformType: 'all',
-                sortTypeIsRecency: false,
             },
+            query: `query BrowsePage_Popular($limit: Int, $cursor: Cursor, $platformType: PlatformType, $options: StreamOptions) {
+                streams(first: $limit, after: $cursor, platformType: $platformType, options: $options) {
+                    edges {
+                        cursor
+                        node {
+                            id
+                            title
+                            previewImageURL(width: 320, height: 180)
+                            viewersCount
+                            broadcaster {
+                                id
+                                login
+                                displayName
+                                profileImageURL(width: 50)
+                            }
+                        }
+                    }
+                    pageInfo {
+                        hasNextPage
+                    }
+                }
+            }`,
         };
     }
 
