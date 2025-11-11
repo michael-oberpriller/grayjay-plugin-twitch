@@ -98,13 +98,6 @@ source.getSearchCapabilities = () => {
 source.search = function (query, type, order, filters) {
     return getSearchPagerAll({ q: query })
 }
-source.getSearchChannelContentsCapabilities = function () {
-    return { types: [Type.Feed.Mixed], sorts: [Type.Order.Chronological], filters: [] }
-}
-// not in twitch
-source.searchChannelContents = function (channelUrl, query, type, order, filters) {
-    return []
-}
 source.searchChannels = function (query) {
     return getSearchPagerChannels({ q: query, page_size: 20, results_returned: 0, cursor: null })
 }
@@ -405,7 +398,7 @@ function getSavedVideo(url) {
             variables: {
                 videoID: id,
             },
-            query: '#import "./query-channel-fragment.gql" query ChannelVideoCore($videoID: ID!) { video(id: $videoID) { id owner { ...coreChannelFragment } } }',
+            query: 'query ChannelVideoCore($videoID: ID!) { video(id: $videoID) { id owner { id login profileImageURL(width: 50) } } }',
         },
     ]
 
@@ -419,6 +412,10 @@ function getSavedVideo(url) {
     const cvc = channel_video_core.data.video
 
     const spat = hls_json.data.videoPlaybackAccessToken
+
+    if (!spat) {
+        throw new UnavailableException('Video playback access token unavailable. Video may be subscriber-only, deleted, or geo-blocked.')
+    }
 
     const hls_url = `https://usher.ttvnw.net/vod/${id}.m3u8?acmb=e30=&allow_source=true&fast_bread=true&p=&play_session_id=&player_backend=mediaplayer&playlist_include_framerate=true&reassignments_supported=true&sig=${spat.signature}&supported_codecs=h265,h264&token=${encodeURIComponent(spat.value)}&transcode_mode=cbr_v1&cdm=wv&player_version=1.20.0`
 
@@ -436,10 +433,9 @@ function getSavedVideo(url) {
             },
             operationName: 'VideoMetadata',
             variables: {
-                channelLogin: cvc.owner.login,
                 videoID: id,
             },
-            query: 'fragment videoMetadataUser on User { id } fragment videoMetadataVideo on Video { id title description previewThumbnailURL(height: 240 width: 360) createdAt viewCount publishedAt lengthSeconds broadcastType owner { id login displayName } game { id boxArtURL name displayName } } query VideoMetadata($channelLogin: String! $videoID: ID!) { user(login: $channelLogin) { id primaryColorHex isPartner profileImageURL(width: 140) lastBroadcast { id startedAt } } currentUser { ...videoMetadataUser } video(id: $videoID) { ...videoMetadataVideo } }',
+            query: 'query VideoMetadata($videoID: ID!) { video(id: $videoID) { id title description previewThumbnailURL(height: 240, width: 360) createdAt viewCount publishedAt lengthSeconds broadcastType owner { id login displayName } game { id boxArtURL name displayName } } }',
         },
     ]
 
@@ -980,16 +976,29 @@ function checkHLS(url) {
  */
 function getHomePagerPopular(context, excludeUrl = null) {
     let gql = {
-        extensions: {
-            persistedQuery: {
-                sha256Hash: 'b32fa28ffd43e370b42de7d9e6e3b8a7ca310035fdbb83932150443d6b693e4d',
-                version: 1,
-            },
-        },
-        query: '#import "twilight/pages/directory-popular/queries/popular-streams-edge.gql" query BrowsePage_Popular( $limit: Int $cursor: Cursor $platformType: PlatformType $options: StreamOptions $sortTypeIsRecency: Boolean! $imageWidth: Int = 50 ) { streams( first: $limit after: $cursor platformType: $platformType options: $options ) { edges { ...browsePagePopularStreamsWithTagsEdge } pageInfo { hasNextPage } } }',
+        query: `query BrowsePage_Popular($limit: Int, $cursor: Cursor, $platformType: PlatformType, $options: StreamOptions) {
+            streams(first: $limit, after: $cursor, platformType: $platformType, options: $options) {
+                edges {
+                    cursor
+                    node {
+                        id
+                        title
+                        previewImageURL(width: 320, height: 180)
+                        viewersCount
+                        broadcaster {
+                            id
+                            login
+                            profileImageURL(width: 50)
+                        }
+                    }
+                }
+                pageInfo {
+                    hasNextPage
+                }
+            }
+        }`,
         operationName: 'BrowsePage_Popular',
         variables: {
-            imageWidth: 50,
             limit: context.page_size,
             options: {
                 broadcasterLanguages: ['EN'],
@@ -1003,7 +1012,6 @@ function getHomePagerPopular(context, excludeUrl = null) {
                 tags: [],
             },
             platformType: 'all',
-            sortTypeIsRecency: false,
         },
     }
     if (context.cursor) gql.variables.cursor = context.cursor
@@ -1146,12 +1154,6 @@ function getChannelPager(context) {
     const gqlClipOperationName = 'ClipsCards__User';
 
     let gql = [{
-        extensions: {
-            persistedQuery: {
-                sha256Hash: 'a937f1d22e269e39a03b509f65a7490f9fc247d7f83d6ac1421523e3b68042cb',
-                version: 1,
-            },
-        },
         operationName: gqlVideoOperationName,
         variables: {
             broadcastType: null,
@@ -1160,7 +1162,34 @@ function getChannelPager(context) {
             limit: context.page_size,
             videoSort: 'TIME',
         },
-        query: '#import "twilight/features/video-preview-card/models/video-edge-fragment.gql" query FilterableVideoTower_Videos($channelOwnerLogin: String! $limit: Int $cursor: Cursor $broadcastType: BroadcastType $videoSort: VideoSort $options: VideoConnectionOptionsInput) { user(login: $channelOwnerLogin) { id videos(first: $limit after: $cursor type: $broadcastType sort: $videoSort options: $options) { edges { ...VideoEdge } pageInfo { hasNextPage } } } }',
+        query: `query FilterableVideoTower_Videos($channelOwnerLogin: String!, $limit: Int, $cursor: Cursor, $broadcastType: BroadcastType, $videoSort: VideoSort, $options: VideoConnectionOptionsInput) {
+            user(login: $channelOwnerLogin) {
+                id
+                videos(first: $limit, after: $cursor, type: $broadcastType, sort: $videoSort, options: $options) {
+                    edges {
+                        cursor
+                        node {
+                            __typename
+                            id
+                            title
+                            previewThumbnailURL(width: 320, height: 180)
+                            publishedAt
+                            lengthSeconds
+                            viewCount
+                            owner {
+                                id
+                                displayName
+                                login
+                                profileImageURL(width: 50)
+                            }
+                        }
+                    }
+                    pageInfo {
+                        hasNextPage
+                    }
+                }
+            }
+        }`,
     },
     {
         operationName: gqlClipOperationName,
@@ -1173,12 +1202,31 @@ function getChannelPager(context) {
             },
             cursor: context.ClipCursor
         },
-        extensions: {
-            persistedQuery: {
-                version: 1,
-                sha256Hash: "4eb8f85fc41a36c481d809e8e99b2a32127fdb7647c336d27743ec4a88c4ea44"
+        query: `query ClipsCards__User($login: String!, $limit: Int, $criteria: UserClipsInput, $cursor: Cursor) {
+            user(login: $login) {
+                clips(first: $limit, criteria: $criteria, after: $cursor) {
+                    edges {
+                        cursor
+                        node {
+                            __typename
+                            id
+                            slug
+                            title
+                            thumbnailURL
+                            createdAt
+                            durationSeconds
+                            viewCount
+                            broadcaster {
+                                id
+                                displayName
+                                login
+                                profileImageURL(width: 50)
+                            }
+                        }
+                    }
+                }
             }
-        }
+        }`
     }]
 
     if(context.videosHasNext === undefined) {
@@ -1219,15 +1267,22 @@ function getChannelPager(context) {
     const edges = videosJson?.data?.user?.videos?.edges ?? [];
     const clips = clipsJson?.data?.user?.clips?.edges ?? [];
 
-    let videos = [...edges,...clips].map((edge) => {
-        
+    let videos = [...edges,...clips].filter(edge => {
+        // Filter out items without owner/broadcaster
+        if(edge.node.__typename == 'Clip') {
+            return edge.node.broadcaster != null;
+        } else {
+            return edge.node.owner != null;
+        }
+    }).map((edge) => {
+
         let owner;
         let contentUrl;
 
         if(edge.node.__typename == 'Clip') {
             owner = edge.node.broadcaster;
-            contentUrl = `https://www.twitch.tv/${owner.login}/clip/${edge.node.slug}`            
-        } else 
+            contentUrl = `https://www.twitch.tv/${owner.login}/clip/${edge.node.slug}`
+        } else
         {
             owner = edge.node.owner;
             contentUrl = BASE_URL + 'videos/' + edge.node.id;
@@ -1302,7 +1357,7 @@ function getSearchPagerAll(context) {
             options: null,
             requestID: '',
         },
-        query: '#import "twilight/features/tags/models/freeform-tag-fragment.gql" #import "twilight/features/tags/models/tag-fragment.gql" query SearchResultsPage_SearchResults( $query: String! $options: SearchForOptions $requestID: ID ) { searchFor( userQuery: $query platform: "web" options: $options requestID: $requestID ) { channels { ...searchForChannelsFragment } channelsWithTag { ...searchForChannelsWithTagFragment } games { ...searchForGamesFragment } videos { ...searchForVideosFragment } relatedLiveChannels { ...relatedLiveChannelsFragment } } } fragment relatedLiveChannelsFragment on SearchForResultRelatedLiveChannels { edges { trackingID item { ...searchRelatedLiveChannelFragment } } score } fragment searchForGamesFragment on SearchForResultGames { cursor edges { trackingID item { ...searchForGameFragment ...searchForVideoFragment ...searchForUserFragment } } score totalMatches } fragment searchForChannelsFragment on SearchForResultUsers { cursor edges { trackingID item { ...searchForUserFragment ...searchForVideoFragment ...searchForGameFragment } } score totalMatches } fragment searchForChannelsWithTagFragment on SearchForResultUsers { cursor edges { trackingID item { ...searchForUserFragment ...searchForVideoFragment ...searchForGameFragment } } score totalMatches } fragment searchForVideosFragment on SearchForResultVideos { cursor edges { trackingID item { ...searchForVideoFragment ...searchForUserFragment ...searchForGameFragment } } score totalMatches } fragment searchRelatedLiveChannelFragment on User { id stream { id viewersCount previewImageURL(height: 112 width: 200) game { name id } broadcaster { id primaryColorHex login displayName broadcastSettings { id title } roles { isPartner } } } watchParty { session { id contentRestriction } } } fragment searchForGameFragment on Game { id name displayName boxArtURL(height: 120 width: 90) tags(tagType: CONTENT) { ...tagFragment } viewersCount } fragment searchForScheduleSegmentFragment on ScheduleSegment { id startAt endAt title hasReminder categories { id name } } fragment searchForUserFragment on User { broadcastSettings { id title } displayName followers { totalCount } id lastBroadcast { id startedAt } login profileImageURL(width: 150) description channel { id schedule { id nextSegment { ...searchForScheduleSegmentFragment } } } self { canFollow follower { disableNotifications } } latestVideo: videos(first: 1 sort: TIME type: ARCHIVE) { edges { node { ...searchForFeaturedVideoFragment } } } topClip: clips(first: 1 criteria: { sort: VIEWS_DESC }) { edges { node { ...searchForFeaturedClipFragment } } } roles { isPartner } stream { game { id name displayName } id previewImageURL(height: 120 width: 214) freeformTags { ...freeformTagFragment } type viewersCount } watchParty { session { id contentRestriction } } } fragment searchForFeaturedVideoFragment on Video { id lengthSeconds title previewThumbnailURL(width: 100 height: 56) } fragment searchForFeaturedClipFragment on Clip { id title durationSeconds thumbnailURL slug } fragment searchForVideoFragment on Video { createdAt owner { id displayName login roles { isPartner } } id game { id name displayName } lengthSeconds previewThumbnailURL(height: 120 width: 214) title viewCount }',
+        query: 'query SearchResultsPage_SearchResults( $query: String! $options: SearchForOptions $requestID: ID ) { searchFor( userQuery: $query platform: "web" options: $options requestID: $requestID ) { channels { ...searchForChannelsFragment } channelsWithTag { ...searchForChannelsWithTagFragment } games { ...searchForGamesFragment } videos { ...searchForVideosFragment } relatedLiveChannels { ...relatedLiveChannelsFragment } } } fragment relatedLiveChannelsFragment on SearchForResultRelatedLiveChannels { edges { trackingID item { ...searchRelatedLiveChannelFragment } } score } fragment searchForGamesFragment on SearchForResultGames { cursor edges { trackingID item { ...searchForGameFragment ...searchForVideoFragment ...searchForUserFragment } } score totalMatches } fragment searchForChannelsFragment on SearchForResultUsers { cursor edges { trackingID item { ...searchForUserFragment ...searchForVideoFragment ...searchForGameFragment } } score totalMatches } fragment searchForChannelsWithTagFragment on SearchForResultUsers { cursor edges { trackingID item { ...searchForUserFragment ...searchForVideoFragment ...searchForGameFragment } } score totalMatches } fragment searchForVideosFragment on SearchForResultVideos { cursor edges { trackingID item { ...searchForVideoFragment ...searchForUserFragment ...searchForGameFragment } } score totalMatches } fragment searchRelatedLiveChannelFragment on User { id stream { id viewersCount previewImageURL(height: 112 width: 200) game { name id } broadcaster { id primaryColorHex login displayName broadcastSettings { id title } roles { isPartner } } } watchParty { session { id contentRestriction } } } fragment searchForGameFragment on Game { id name displayName boxArtURL(height: 120 width: 90) tags(tagType: CONTENT) { id } viewersCount } fragment searchForScheduleSegmentFragment on ScheduleSegment { id startAt endAt title hasReminder categories { id name } } fragment searchForUserFragment on User { broadcastSettings { id title } displayName followers { totalCount } id lastBroadcast { id startedAt } login profileImageURL(width: 150) description channel { id schedule { id nextSegment { ...searchForScheduleSegmentFragment } } } self { canFollow follower { disableNotifications } } latestVideo: videos(first: 1 sort: TIME type: ARCHIVE) { edges { node { ...searchForFeaturedVideoFragment } } } topClip: clips(first: 1 criteria: { sort: VIEWS_DESC }) { edges { node { ...searchForFeaturedClipFragment } } } roles { isPartner } stream { game { id name displayName } id previewImageURL(height: 120 width: 214) freeformTags { id } type viewersCount } watchParty { session { id contentRestriction } } } fragment searchForFeaturedVideoFragment on Video { id lengthSeconds title previewThumbnailURL(width: 100 height: 56) } fragment searchForFeaturedClipFragment on Clip { id title durationSeconds thumbnailURL slug } fragment searchForVideoFragment on Video { createdAt owner { id displayName login roles { isPartner } } id game { id name displayName } lengthSeconds previewThumbnailURL(height: 120 width: 214) title viewCount }',
     }
 
     /** @type {import("./types.d.ts").AllSearchResponse} */
@@ -1366,7 +1421,7 @@ function getSearchPagerChannels(context) {
             query: context.q,
             requestID: '',
         },
-        query: '#import "twilight/features/tags/models/freeform-tag-fragment.gql" #import "twilight/features/tags/models/tag-fragment.gql" query SearchResultsPage_SearchResults( $query: String! $options: SearchForOptions $requestID: ID ) { searchFor( userQuery: $query platform: "web" options: $options requestID: $requestID ) { channels { ...searchForChannelsFragment } channelsWithTag { ...searchForChannelsWithTagFragment } games { ...searchForGamesFragment } videos { ...searchForVideosFragment } relatedLiveChannels { ...relatedLiveChannelsFragment } } } fragment relatedLiveChannelsFragment on SearchForResultRelatedLiveChannels { edges { trackingID item { ...searchRelatedLiveChannelFragment } } score } fragment searchForGamesFragment on SearchForResultGames { cursor edges { trackingID item { ...searchForGameFragment ...searchForVideoFragment ...searchForUserFragment } } score totalMatches } fragment searchForChannelsFragment on SearchForResultUsers { cursor edges { trackingID item { ...searchForUserFragment ...searchForVideoFragment ...searchForGameFragment } } score totalMatches } fragment searchForChannelsWithTagFragment on SearchForResultUsers { cursor edges { trackingID item { ...searchForUserFragment ...searchForVideoFragment ...searchForGameFragment } } score totalMatches } fragment searchForVideosFragment on SearchForResultVideos { cursor edges { trackingID item { ...searchForVideoFragment ...searchForUserFragment ...searchForGameFragment } } score totalMatches } fragment searchRelatedLiveChannelFragment on User { id stream { id viewersCount previewImageURL(height: 112 width: 200) game { name id } broadcaster { id primaryColorHex login displayName broadcastSettings { id title } roles { isPartner } } } watchParty { session { id contentRestriction } } } fragment searchForGameFragment on Game { id name displayName boxArtURL(height: 120 width: 90) tags(tagType: CONTENT) { ...tagFragment } viewersCount } fragment searchForScheduleSegmentFragment on ScheduleSegment { id startAt endAt title hasReminder categories { id name } } fragment searchForUserFragment on User { broadcastSettings { id title } displayName followers { totalCount } id lastBroadcast { id startedAt } login profileImageURL(width: 150) description channel { id schedule { id nextSegment { ...searchForScheduleSegmentFragment } } } self { canFollow follower { disableNotifications } } latestVideo: videos(first: 1 sort: TIME type: ARCHIVE) { edges { node { ...searchForFeaturedVideoFragment } } } topClip: clips(first: 1 criteria: { sort: VIEWS_DESC }) { edges { node { ...searchForFeaturedClipFragment } } } roles { isPartner } stream { game { id name displayName } id previewImageURL(height: 120 width: 214) freeformTags { ...freeformTagFragment } type viewersCount } watchParty { session { id contentRestriction } } } fragment searchForFeaturedVideoFragment on Video { id lengthSeconds title previewThumbnailURL(width: 100 height: 56) } fragment searchForFeaturedClipFragment on Clip { id title durationSeconds thumbnailURL slug } fragment searchForVideoFragment on Video { createdAt owner { id displayName login roles { isPartner } } id game { id name displayName } lengthSeconds previewThumbnailURL(height: 120 width: 214) title viewCount }',
+        query: 'query SearchResultsPage_SearchResults( $query: String! $options: SearchForOptions $requestID: ID ) { searchFor( userQuery: $query platform: "web" options: $options requestID: $requestID ) { channels { ...searchForChannelsFragment } channelsWithTag { ...searchForChannelsWithTagFragment } games { ...searchForGamesFragment } videos { ...searchForVideosFragment } relatedLiveChannels { ...relatedLiveChannelsFragment } } } fragment relatedLiveChannelsFragment on SearchForResultRelatedLiveChannels { edges { trackingID item { ...searchRelatedLiveChannelFragment } } score } fragment searchForGamesFragment on SearchForResultGames { cursor edges { trackingID item { ...searchForGameFragment ...searchForVideoFragment ...searchForUserFragment } } score totalMatches } fragment searchForChannelsFragment on SearchForResultUsers { cursor edges { trackingID item { ...searchForUserFragment ...searchForVideoFragment ...searchForGameFragment } } score totalMatches } fragment searchForChannelsWithTagFragment on SearchForResultUsers { cursor edges { trackingID item { ...searchForUserFragment ...searchForVideoFragment ...searchForGameFragment } } score totalMatches } fragment searchForVideosFragment on SearchForResultVideos { cursor edges { trackingID item { ...searchForVideoFragment ...searchForUserFragment ...searchForGameFragment } } score totalMatches } fragment searchRelatedLiveChannelFragment on User { id stream { id viewersCount previewImageURL(height: 112 width: 200) game { name id } broadcaster { id primaryColorHex login displayName broadcastSettings { id title } roles { isPartner } } } watchParty { session { id contentRestriction } } } fragment searchForGameFragment on Game { id name displayName boxArtURL(height: 120 width: 90) tags(tagType: CONTENT) { id } viewersCount } fragment searchForScheduleSegmentFragment on ScheduleSegment { id startAt endAt title hasReminder categories { id name } } fragment searchForUserFragment on User { broadcastSettings { id title } displayName followers { totalCount } id lastBroadcast { id startedAt } login profileImageURL(width: 150) description channel { id schedule { id nextSegment { ...searchForScheduleSegmentFragment } } } self { canFollow follower { disableNotifications } } latestVideo: videos(first: 1 sort: TIME type: ARCHIVE) { edges { node { ...searchForFeaturedVideoFragment } } } topClip: clips(first: 1 criteria: { sort: VIEWS_DESC }) { edges { node { ...searchForFeaturedClipFragment } } } roles { isPartner } stream { game { id name displayName } id previewImageURL(height: 120 width: 214) freeformTags { id } type viewersCount } watchParty { session { id contentRestriction } } } fragment searchForFeaturedVideoFragment on Video { id lengthSeconds title previewThumbnailURL(width: 100 height: 56) } fragment searchForFeaturedClipFragment on Clip { id title durationSeconds thumbnailURL slug } fragment searchForVideoFragment on Video { createdAt owner { id displayName login roles { isPartner } } id game { id name displayName } lengthSeconds previewThumbnailURL(height: 120 width: 214) title viewCount }',
     }
 
     /** @type {import("./types.d.ts").AllSearchResponse}*/
@@ -1658,12 +1713,6 @@ function getRecommendationsPager(params) {
     if (gameId && gameName) {
         // Use directory query for specific game
         gql = {
-            extensions: {
-                persistedQuery: {
-                    sha256Hash: 'df4bb6cc45055237bfaf3ead608bbafb79815c7100b6ee126719fac3762ddf8b',
-                    version: 1,
-                },
-            },
             operationName: 'DirectoryPage_Game',
             variables: {
                 name: gameName,
@@ -1676,22 +1725,40 @@ function getRecommendationsPager(params) {
                     requestID: 'RECOMMENDATIONS',
                     freeformTags: tags.length > 0 ? tags.slice(0, MAX_RECOMMENDATION_TAGS) : null,
                 },
-                sortTypeIsRecency: false,
                 limit: RECOMMENDATION_LIMIT,
             },
+            query: `query DirectoryPage_Game($name: String!, $options: GameStreamOptions, $limit: Int) {
+                game(name: $name) {
+                    id
+                    displayName
+                    streams(first: $limit, options: $options) {
+                        edges {
+                            cursor
+                            node {
+                                id
+                                title
+                                previewImageURL(width: 320, height: 180)
+                                viewersCount
+                                broadcaster {
+                                    id
+                                    login
+                                    displayName
+                                    profileImageURL(width: 50)
+                                }
+                            }
+                        }
+                        pageInfo {
+                            hasNextPage
+                        }
+                    }
+                }
+            }`,
         };
     } else {
-        // Use general popular streams query
+        // Use general popular streams query (same as getHomePagerPopular)
         gql = {
-            extensions: {
-                persistedQuery: {
-                    sha256Hash: 'b32fa28ffd43e370b42de7d9e6e3b8a7ca310035fdbb83932150443d6b693e4d',
-                    version: 1,
-                },
-            },
             operationName: 'BrowsePage_Popular',
             variables: {
-                imageWidth: 50,
                 limit: RECOMMENDATION_LIMIT,
                 options: {
                     broadcasterLanguages: ['EN'],
@@ -1705,8 +1772,29 @@ function getRecommendationsPager(params) {
                     tags: [],
                 },
                 platformType: 'all',
-                sortTypeIsRecency: false,
             },
+            query: `query BrowsePage_Popular($limit: Int, $cursor: Cursor, $platformType: PlatformType, $options: StreamOptions) {
+                streams(first: $limit, after: $cursor, platformType: $platformType, options: $options) {
+                    edges {
+                        cursor
+                        node {
+                            id
+                            title
+                            previewImageURL(width: 320, height: 180)
+                            viewersCount
+                            broadcaster {
+                                id
+                                login
+                                displayName
+                                profileImageURL(width: 50)
+                            }
+                        }
+                    }
+                    pageInfo {
+                        hasNextPage
+                    }
+                }
+            }`,
         };
     }
 
