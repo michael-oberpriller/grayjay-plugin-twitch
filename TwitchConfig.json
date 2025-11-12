@@ -7,7 +7,7 @@
 	"sourceUrl": "https://raw.githubusercontent.com/michael-oberpriller/grayjay-plugin-twitch/refs/heads/testing/TwitchConfig.json",
 	"repositoryUrl": "https://github.com/michael-oberpriller/grayjay-plugin-twitch/tree/testing",
 	"scriptUrl": "./TwitchScript.js",
-	"version": 28,
+	"version": 29,
 	"iconUrl": "./twitch.png",
 	"id": "c0f315f9-0992-4508-a061-f2738724c332",
 	"scriptSignature": "",
@@ -71,6 +71,13 @@
 		}
 	],
 	"changelog": {
+		"29": [
+			"Fix: Home tab;",
+			"Fix: Search;",
+			"Fix: Content Details;",
+			"Fix: Playing saved videos;",
+			"Fix: Content recommendations;"
+		],
 		"28": [
 			"Improvement: Add 1440p stream support for logged-in users in supported regions;"
 		],
